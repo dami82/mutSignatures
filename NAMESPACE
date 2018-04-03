@@ -1,0 +1,45 @@
+exportPattern("^[[:alpha:]]+")
+exportMethods(
+    "as.data.frame",
+    "as.list",
+    "as.matrix",
+    "as.mutation.counts",
+    "as.mutation.signatures",
+    "as.mutsign.exposures",
+    "[",
+    "cbind2",
+    "coerceObj",
+    "getCounts",
+    "getFwkParam",
+    "getMutationTypes",
+    "getSampleIdentifiers",
+    "getSignatureIdentifiers",
+    "initialize",
+    "plot",
+    "print",
+    "setFwkParam",
+    "setSignatureIdentifiers",
+    "show" 
+)
+exportClasses(
+    "mutFrameworkParams",
+     "mutationCounts",
+     "mutationSignatures",
+     "mutSignExposures" 
+)
+
+importFrom("graphics", "plot", "barplot", "abline", "title", "axis", "box", "lines", "points")
+importFrom("stats", "runif", "sd", "rmultinom", "median")
+importFrom("pracma", "squareform")
+importFrom("proxy", "dist")
+importFrom("cluster", "silhouette")
+importFrom("parallel", "detectCores", "makeCluster", "clusterExport", "stopCluster")
+importFrom("doParallel", "registerDoParallel")
+importFrom("foreach", "foreach", "%dopar%")
+importFrom("NMF", "fcnnls")
+import("ggplot2")
+importFrom("methods", "callNextMethod", "new", "show", "cbind2", "initialize")
+importFrom("utils", "head", "installed.packages", "read.csv", "read.delim")
+importFrom("IRanges", "IRanges")
+importFrom("GenomicRanges", "GRanges")
+

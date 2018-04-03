@@ -1,0 +1,12 @@
+Package: mutSignatures
+Type: Package
+Title: Decipher Mutational Signatures from Somatic Mutational Catalogs
+Version: 1.3.7
+Date: 2018-01-20
+Author: Damiano Fantini, Joshua J Meeks
+Maintainer: Damiano Fantini <damiano.fantini@gmail.com>
+Description: Cancer cells accumulate DNA mutations as result of DNA damage and DNA repair processes. This computational framework is aimed at deciphering DNA mutational signatures operating in cancer. The framework provides tools for importing DNA mutation counts, retrieve the tri-nucleotide context surrounding each DNA mutation, and then perform non-negative matrix factorization to extract the most likely signatures explaining the observed set of DNA mutations. The framework can take advantage of parallelization and is already optimized for use on multi-core systems. This framework is an R-based implementation based on the MATLAB WTSI framework by Alexandrov LB et al (2013) <doi:10.1016/j.celrep.2012.12.008>, and comes with a series of improvements, as described by Fantini D et al (2018) <doi:10.1038/s41388-017-0099-6>. 
+Depends: R (>= 3.1.0) 
+Imports: cluster, pracma, proxy, doParallel, ggplot2, foreach, methods, IRanges, NMF, BSgenome, GenomicRanges
+License: GPL-2
+URL: http://www.mutsignatures.org/
