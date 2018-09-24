@@ -2576,6 +2576,7 @@ processVCFdata <- function(vcfData,
       tmpVCF <- suppressMessages({attachMutType(mutData = tmpVCF,
                                                 ref_colName = ref_colName,
                                                 var_colName = alt_colName,
+                                                var2_colName = alt_colName,
                                                 context_colName = "context")})
       if (verbose)
         message(".", appendLF = F)
