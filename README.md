@@ -1,7 +1,8 @@
 # mutSignatures
+
 Thank you for your interest in `mutSignatures`! 
 
-- version: latest (dev) version - 2.1.3
+- version: latest (dev) version, `2.1.3`
 - previous versions are available as alternative branches
 
 ### Notes about the R library
@@ -19,7 +20,7 @@ and supports the analysis of non-standard mutation types, such as tetra-nucleoti
 
 - **Vignette on CRAN**: <https://cran.r-project.org/web/packages/mutSignatures/vignettes/get_sarted_with_mutSignatures.html>
 
-- **Peer-reviewed paper (Sci Rep. 2020 Oct 26;10(1):18217)**: <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7589488/>
+- **Peer-reviewed paper** *(Sci Rep. 2020 Oct 26;10(1):18217)*: <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7589488/>
 
 ### Installation from GitHub
 
@@ -29,5 +30,6 @@ devtools::install_github("dami82/mutSignatures", force = TRUE, build_vignettes =
 ```
 
 ### Authors
-Damiano Fantini, Vania Vidimar, Yanni Yu, Salvatore Condello, Joshua J Meeks
-The package was developed at Northwestern University, Chicago, IL (2017-2020)
+
+- Damiano Fantini, Vania Vidimar, Yanni Yu, Salvatore Condello, Joshua J Meeks
+- The package was developed at Northwestern University, Chicago, IL (Department of Urology, 2017-2020)
