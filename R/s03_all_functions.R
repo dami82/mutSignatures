@@ -2371,6 +2371,8 @@ getCosmicSignatures <- function(forceUseMirror = FALSE, asMutSign = TRUE)
     return(NULL)
   } else {
     if (sum(mutType.labels %in% rownames(my_fullW)) == length(mutType.labels)) {
+      
+      colnames(my_fullW) <- sub("Signature", "COSMIC", colnames(my_fullW))
       obj2rt <- my_fullW[mutType.labels,]
       if(asMutSign)
         obj2rt <- mutSignatures::as.mutation.signatures(obj2rt)
