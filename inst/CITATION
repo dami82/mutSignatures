@@ -1,0 +1,18 @@
+year <- 2020
+note <- sprintf("R package version %s", meta$Version)
+
+bibentry(bibtype = "Manual",
+         title = "MutSignatures: an R package for extraction and analysis of cancer mutational signatures",
+         author = c(person("Damiano", "Fantini"),
+                    person("Vania", "Vidimar"),
+                    person("Yanni", "Yu"),
+                    person("Salvatore", "Condello"),
+                    person("Joshua", "Meeks")),
+         year = year,
+         journal = "Scientific Reports",
+         volume = "10", 
+         doi = "10.1038/s41598-020-75062-0",
+         note = note,
+         url = "https://CRAN.R-project.org/package=mutSignatures")
+
+
