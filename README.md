@@ -2,7 +2,7 @@
 
 Thank you for your interest in `mutSignatures`! 
 
-- version: latest (dev) version, `2.1.3`
+- version: latest (dev) version, `2.1.4`
 - previous versions are available as alternative branches
 
 ### Notes about the R library
