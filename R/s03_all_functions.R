@@ -5,7 +5,7 @@
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Damiano Fantini, Ph.D.
-# 2020-Mar-05
+# 2021-Nov-13
 
 ###
 ##### Custom Functions - core package
@@ -3393,6 +3393,9 @@ table2df <- function(dataMatrix,
 #' @param nucl_contextN integer, the span of nucleotides to be retrieved around the variant. Defaults to 3
 #' @param context_colName string, name of the column that will be storing the
 #' nucleotide context. Defaults to "context"
+#' @param skip_seqName_check logical, shall seqNames be checked to remove non-official chromosomes. 
+#' Defaults to FALSE
+#'
 #'
 #' @return a modified data.frame including the nucleotide context in a new column
 #'
@@ -3420,7 +3423,8 @@ attachContext <- function(mutData,
                           start_colName = "start_position",
                           end_colName = "end_position",
                           nucl_contextN = 3,
-                          context_colName = "context")
+                          context_colName = "context",
+                          skip_seqName_check = FALSE)
 {
   # Init Exec
   exec <- TRUE
@@ -3448,7 +3452,8 @@ attachContext <- function(mutData,
                           start_colName = start_colName,
                           end_colName = end_colName,
                           nucl_contextN = nucl_contextN,
-                          context_colName = context_colName)},
+                          context_colName = context_colName, 
+                          skip_seqName_check = skip_seqName_check)},
 
       error = function(e) {
         message("An error has occurred!")
