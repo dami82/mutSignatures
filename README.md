@@ -15,6 +15,17 @@ extracting mutational signatures via non-negative matrix factorization (NMF)
 - I/O: accepts multiple types of input data (VCF, MAF), is compatible with non-human genomes, 
 and supports the analysis of non-standard mutation types, such as tetra-nucleotide mutation types. 
 
+### Important differences with previous versions
+
+- the latest version of `mutSignatures` (available here on *GitHub*) fixes a known compatibility issue between
+older versions of `mutSignatures` and more recent versions of BSgenome objects. If you get an **error** while 
+running the `attachContext()` function, please re-install the latest version of `mutSignatures` (from GitHub) 
+and try again! 
+
+- compared to mutSignatures version 1.3.1-7, the latest `mutSignature` version replaced the `plot()` method with 
+the `msigPlot()` method. Please, make sure to use `mutSignatures::msigPlot()` to build plots (as shown in the
+vignette attached to the package) especially when reproducing examples from older vignettes. Thanks!
+
 
 ### Links
 
