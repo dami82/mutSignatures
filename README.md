@@ -19,8 +19,8 @@ and supports the analysis of non-standard mutation types, such as tetra-nucleoti
 
 - the latest version of `mutSignatures` (available here on *GitHub*) fixes a known compatibility issue between
 older versions of `mutSignatures` and more recent versions of BSgenome objects. If you get an **error** while 
-running the `attachContext()` function, please re-install the latest version of `mutSignatures` (from GitHub) 
-and try again! 
+running the `attachContext()` function, please re-install the latest version of `mutSignatures` (from *GitHub*, see below!) 
+and try again.
 
 - compared to mutSignatures version 1.3.1-7, the latest `mutSignature` version replaced the `plot()` method with 
 the `msigPlot()` method. Please, make sure to use `mutSignatures::msigPlot()` to build plots (as shown in the
@@ -44,3 +44,6 @@ devtools::install_github("dami82/mutSignatures", force = TRUE, build_vignettes =
 
 - Damiano Fantini, Vania Vidimar, Yanni Yu, Salvatore Condello, Joshua J Meeks
 - The package was developed at Northwestern University, Chicago, IL (Department of Urology, 2017-2020)
+- The package is still maintained by Damiano Fantini in his free time (Damiano has left academia). Therefore, please
+be patient when asking for help of submitting new issues! Thanks.
+
