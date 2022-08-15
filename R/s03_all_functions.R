@@ -5,7 +5,7 @@
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Damiano Fantini, Ph.D.
-# 2021-Nov-13
+# 2022-Aug-15
 
 ###
 ##### Custom Functions - core package
@@ -134,14 +134,14 @@ bootstrapCancerGenomes <- function (genomes, seed = NULL)
 {
   if (!is.null(seed))
     try(set.seed(seed), silent = TRUE)
-
+  
   genome.col.sums <- suppressWarnings(apply(genomes, 2, sum))
   my.denom <- matrix(genome.col.sums,
                      ncol = ncol(genomes),
                      nrow = nrow(genomes),
                      byrow = TRUE)
   norm.genomes <- suppressWarnings(genomes/my.denom)
-
+  
   bootstrapGenomes <- suppressWarnings(
     lapply(1:ncol(genomes), (function(i) {
       tmp <- norm.genomes[,i]
@@ -229,10 +229,10 @@ evaluateStability <- function (wall,
       if (num_processesToExtract > 1)
         tmp.pdist[tmp.pdist == 1 | tmp.pdist == 0] <- NA
       allDist <- pracma::squareform(tmp.pdist)
-
+      
       cd.colRange <- (ncol(centroids) + 1):ncol(allDist)
       centroidDist = t(allDist[1:ncol(centroids), cd.colRange])
-
+      
       jRange <- sort(1:num_processesToExtract)
       for (jIndex in 1:num_processesToExtract) {
         j <- jRange[jIndex]
@@ -259,12 +259,12 @@ evaluateStability <- function (wall,
       }
       if (maxDistToNewCentroids < CONVERG_CUTOFF) {
         countIRep <- countIRep + 1
-
+        
       } else {
         countIRep <- 0
         centroidsTest <- centroids
       }
-
+      
       if (countIRep == CONVERG_ITER) {
         break
       }
@@ -314,7 +314,7 @@ evaluateStability <- function (wall,
     tmp.pdist[tmp.pdist == 1 | tmp.pdist == 0] <- NA
     allDist <- pracma::squareform(tmp.pdist)
     processStab <- 1 - base::t(allDist[1, 2:ncol(allDist)])
-
+    
     # Silhouette plot
     xrange <- c(min(processStab), max(processStab))
     xrange[1] <- ifelse(xrange[1] > 0, 0, (-1.15) * abs(xrange[1]))
@@ -328,18 +328,18 @@ evaluateStability <- function (wall,
                       border = "gray20")
     graphics::abline(v=0)
     graphics::title(ylab="Iter. Results (by Group)", line=1, cex.lab=1, font = 2)
-
+    
     processStabAvg <- apply(processStab, 2, (function(clmn) {
       base::mean(clmn, na.rm = TRUE)
     }))
   }
-
+  
   if (num_processesToExtract > 1) {
     centroidStd <- matrix(0, nrow = nrow(centroids), ncol = ncol(centroids))
   } else {
     centroidStd <- matrix(0, ncol = length(centroids), nrow = 1)
   }
-
+  
   for (i in 1:num_processesToExtract) {
     centroidStd[i, ] <- apply(wall[, idx == i], 1, (function(rw) {
       stats::sd(rw, na.rm = TRUE)
@@ -365,13 +365,13 @@ evaluateStability <- function (wall,
       sd(cl, na.rm = TRUE)
     }))
   }
-
+  
   # Fix to sign.to.extract.num = 1
   if (num_processesToExtract < 2){
     centroids <- base::t(centroids)
   }
-
-
+  
+  
   result.list <- list()
   result.list$centroids <- centroids
   result.list$centroidStd <- centroidStd
@@ -485,7 +485,7 @@ filterOutIterations <- function (wall,
 getTestRunArgs <- function (testN = "evaluateStability")
 {
   out <- list()
-
+  
   if (testN == "evaluateStability") {
     out$W <- do.call(cbind, lapply(1:20, (function(i) {
       cbind(c(runif(4, 0.05, 0.15),
@@ -510,43 +510,43 @@ getTestRunArgs <- function (testN = "evaluateStability")
     out$params$num_totReplicates <- 20
     out$params$distanceFunction <- "cosine"
     out$params$analyticApproach <- "denovo"
-
+    
   } else if (testN == "removeWeak") {
-
+    
     out <- list()
     out$data <- sapply(1:12, function(i) {sample(50:99, size = 50, replace = TRUE) })
     out$data[6, ] <- sample(0:5, size = 12, replace = TRUE)
     out$params <- as.list(setMutClusterParams())
-
+    
   } else if (testN == "silhouetteMLB") {
-
+    
     out <- list()
     out$data <- rbind(sapply(1:10, function(i) {sample(x = 0:15, size = 10)}),
                       sapply(1:10, function(i) {sample(x = 11:29, size = 10)}))
     out$fac <- factor(c(rep(1, 10), rep(2, 10)))
-
-
+    
+    
   } else if (testN %in% c("alexaNMF", "chihJenNMF")) {
-
+    
     out <- list()
-
+    
     zz1 <- sapply(1:4, function(i) {base::sample(30:58, replace = TRUE, size = 20)})
     zz2 <- sapply(1:2, function(i) {base::sample(52:80, replace = TRUE, size = 20)})
     zz3 <- sapply(1:4, function(i) {base::sample(60:120, replace = TRUE, size = 15)})
     zz4 <- sapply(1:2, function(i) {base::sample(15:40, replace = TRUE, size = 15)})
-
+    
     out$v <- rbind(
       cbind(zz1, zz2),
       cbind(zz3, zz4))
-
+    
     out$r <- 2
     out$params <- as.list(setMutClusterParams())
-
+    
   } else if (testN %in% c("decipherMutationalProcesses", "deconvoluteMutCounts",
                           "extractSignatures")) {
-
+    
     out <- list()
-
+    
     muts <- cbind(
       sapply(1:12, function(i) {c(sample(5:15, size = 20, replace = TRUE),
                                   sample(10:25, size = 10))}),
@@ -562,28 +562,28 @@ getTestRunArgs <- function (testN = "evaluateStability")
     out$params <- setMutClusterParams(2)
     out$params@params$num_totIterations <- 10
     out$params@params$niter <- 1000
-
+    
   } else if (testN == "custom_fcnnls") {
-
+    
     out <- list()
     out$muts <- cbind(A = c(10, 15, 23, 15, 23,  5, 2, 6, 8),
                       B = c(12, 13, 22, 14, 18,  1, 5, 2, 7),
                       C = c(12,  5, 10,  5, 13, 22, 1, 1, 9))
     out$signs <- cbind(S1 = c(0.16, 0.06, 0.13, 0.06, 0.18, 0.28, 0.01, 0.01, 0.11),
                        S2 = c(0.09, 0.14, 0.22, 0.15, 0.21, 0.04, 0.02, 0.06, 0.07))
-
+    
   } else if (testN == "custom_cssls") {
-
+    
     CtC <- cbind(c(0.1728, 0.1179), c(0.1179, 0.1532))
     CtA <- cbind(c(10.76, 14.37), c(13.33, 9.05))
     Pset <- cbind(c(FALSE, TRUE), c(TRUE, FALSE))
-
+    
     out <- list(CtC = CtC,
                 CtA = CtA,
                 Pset = Pset)
-
+    
   } else if (testN == "extractXvarlinkData") {
-
+    
     out <- c("getma.org/?cm=var&var=hg19,9,107576738,C,T&fts=all",
              "",
              "getma.org/?cm=var&var=hg19,9,107594970,G,A&fts=all",
@@ -596,9 +596,9 @@ getTestRunArgs <- function (testN = "evaluateStability")
              "getma.org/?cm=var&var=hg19,16,2358451,C,T&fts=all",
              "getma.org/?cm=var&var=hg19,1,94522197,G,T&fts=all",
              "getma.org/?cm=var&var=hg19,1,94548924,G,A&fts=all")
-
+    
   } else if (testN == "removeMismatchMut") {
-
+    
     out <- data.frame(CHROM = c("chr1", "chr1", "chr2", "chr3", "chr3", "chr5"),
                       POS = c(12144, 155464, 4232, 35222, 35663, 244425),
                       REF = c("A", "T", "G", "G", "T", "G"),
@@ -606,10 +606,10 @@ getTestRunArgs <- function (testN = "evaluateStability")
                       INFO = c(".", ".", ".", "ref133121", ".", "."),
                       context = c("TAA", "ATA", "CGG", "CCG", "ATA", "AAT"),
                       stringsAsFactors = FALSE)
-
+    
   } else if (testN == "resolveMutSignatures") {
     out <- list()
-
+    
     muts <- cbind(
       sapply(1:12, function(i) {c(sample(5:15, size = 20, replace = TRUE),
                                   sample(10:25, size = 10))}),
@@ -621,26 +621,26 @@ getTestRunArgs <- function (testN = "evaluateStability")
                         "A[G>C]A", "C[G>C]A", "G[G>C]A", "T[G>C]A", "T[G>C]C", "T[G>C]G",
                         "A[G>T]A", "C[G>T]A", "G[G>T]A", "T[G>T]A", "T[G>T]C", "T[G>T]G")
     colnames(muts) <- paste0("SMPL.", 1001:1020)
-
+    
     sigs <- cbind(
       SIG.1 = c(sample(5:15, size = 20, replace = TRUE), sample(10:25, size = 10)),
       SIG.2 = c(sample(10:25, size = 20, replace = TRUE),sample(5:15, size = 10)))
     for ( i in 1:ncol(sigs)) {
       sigs[, i] <- sigs[, i] / sum(sigs[, i])
     }
-
+    
     rownames(sigs) <- c("A[A>C]A", "C[A>C]A", "G[A>C]A", "T[A>C]A", "T[A>C]C", "T[A>C]G",
                         "A[A>G]A", "C[A>G]A", "G[A>G]A", "T[A>G]A", "T[A>G]C", "T[A>G]G",
                         "A[A>T]A", "C[A>T]A", "G[A>T]A", "T[A>T]A", "T[A>T]C", "T[A>T]G",
                         "A[G>C]A", "C[G>C]A", "G[G>C]A", "T[G>C]A", "T[G>C]C", "T[G>C]G",
                         "A[G>T]A", "C[G>T]A", "G[G>T]A", "T[G>T]A", "T[G>T]C", "T[G>T]G")
-
+    
     out$muts <- mutSignatures::as.mutation.counts(as.data.frame(muts))
     out$sigs <- mutSignatures::as.mutation.signatures(as.data.frame(sigs))
-
-
+    
+    
   } else if (testN == "countMutTypes") {
-
+    
     out <- data.frame(CHROM = "chr1",
                       mutation = c("A[C>A]A", "A[C>A]C", "A[C>A]G", "A[C>A]T",
                                    "A[C>G]A", "A[C>G]C", "A[C>G]G", "A[C>G]T",
@@ -648,10 +648,10 @@ getTestRunArgs <- function (testN = "evaluateStability")
                                    "A[T>A]A", "A[T>A]C", "A[T>A]G", "A[T>A]T",
                                    "A[T>C]A", "A[T>C]C", "A[T>C]G", "A[T>C]T"),
                       sample = paste0("S.", c(rep(1, 10), rep(2, 10))))
-
-
+    
+    
   } else if (testN == "filterSNV") {
-
+    
     out <- data.frame(CHR = "chr1",
                       POS = c(972116, 1647600, 11529902, 16624394, 21617326,
                               26923997, 30718807, 36309634, 44805336, 99288016,
@@ -663,7 +663,7 @@ getTestRunArgs <- function (testN = "evaluateStability")
                               "A", "C", "G", "G", "G", "TT", "T", "G", "G", "A"),
                       SAMPLEID = paste0("smpl.", c(rep(1, 10), rep(2, 10))),
                       stringsAsFactors = FALSE)
-
+    
   } else  {
     out <- NULL
   }
@@ -710,7 +710,7 @@ leadZeros <- function (n, m, char = "0", na.value = NA)
   max.zeros <- nchar(base::as.character(round(m)))
   tmp.digits <- nchar(base::as.character(round(n)))
   zeros.toAdd <- max.zeros - tmp.digits
-
+  
   returnVect <- sapply(1:length(n), function(i){
     if (is.na(zeros.toAdd[i])) {
       na.value
@@ -895,7 +895,7 @@ alexaNMF <- function(v, r, params)
   debug <- params$debug
   chk.step <- 50
   dot.eachSteps <- 2000
-
+  
   # retireve user-defined params
   eps <- params$eps
   num.processes <- r
@@ -903,46 +903,46 @@ alexaNMF <- function(v, r, params)
   niter <- params$niter
   err.threshold <- 1e-10
   stopRule <- ifelse(params$stopRule == "LA", "LA", "DF")
-
+  
   # set.seed(231082)
   v <- base::as.matrix(v)
   rownames(v) <- NULL
   colnames(v) <- NULL
-
+  
   # Double check input matrix
   if (min(v) < 0)
     stop("Matrix entries cannot be negative")
   if (min(apply(v, 1, sum)) == 0)
     stop("Entries cannot all be equal to 0")
-
+  
   # Initialize W0 and H0
   W.k <- do.call(cbind, lapply(1:num.processes, (function(i){
     out.o <- runif(n = nrow(v), min = eps, max = 100)
     out.o/sum(out.o)
   })))
   H.k <- matrix((1/num.processes), nrow = num.processes, ncol = ncol(v))
-
+  
   # Initialize looping vars
   itr <- 1
   chk.j <- 1
   stationary.chk <- 0
   force.out <- 1
-
+  
   # Debugging plot
   if (debug)
     graphics::plot(-10, xlim = c(1000, niter),
                    ylim = c( ifelse(stopRule == "DF", (0.1*err.threshold), 0.001) ,
                              ifelse(stopRule == "DF", 10, ncol(H.k))), log = "xy",
                    xlab = "Iteration", ylab = "Variation", main = "Convergence")
-
+  
   # Initialize the objects for comparing dissimilarity
   # DF approach
   cons.old <- base::as.vector(W.k)
   # Alexandrov approach
   consold <- matrix(0, nrow = ncol(H.k), ncol = ncol(H.k))
-
+  
   while (itr < niter){
-
+    
     if (itr %% dot.eachSteps == 0) {
       if (stationary.chk > chk.step) {
         message(":", appendLF = FALSE)
@@ -950,31 +950,31 @@ alexaNMF <- function(v, r, params)
         message(".", appendLF = FALSE)
       }
     }
-
+    
     delta.01 <- apply(W.k, 2, sum)
     H.k <- H.k * (base::t(W.k) %*% (v/(W.k %*% H.k))) / delta.01
     H.k[H.k < eps] <- eps
-
+    
     W.tmp <- W.k * ((v/(W.k %*% H.k)) %*% base::t(H.k))
     W.k <- do.call(cbind, lapply(1:ncol(W.tmp), (function(ci){
       W.tmp[,ci] / sum(H.k[ci,])
     })))
     W.k[W.k<eps] <- eps
-
+    
     # check convergence every 'chk.step' iterations
     if (itr > stopconv & itr %% chk.step == 0 & stopRule == "DF") {
       chk.j <- chk.j + 1
       H.k[H.k < eps] <- eps
       W.k[W.k < eps] <- eps
       cons <- base::as.vector(W.k)
-
+      
       # compare to consold and reorder
       dist.measure <- proxy::dist(rbind(cons, cons.old), method = "cosine") [1]
       cons.old <- cons
-
+      
       if (debug)
         points(itr, (dist.measure + (err.threshold*0.1)), pch = 19, col = "red2")
-
+      
       # evaluate distance
       if (dist.measure < err.threshold) {
         stationary.chk <- stationary.chk + 1
@@ -1008,10 +1008,10 @@ alexaNMF <- function(v, r, params)
       }
       #
       consold <- cons
-
+      
       if (debug)
         points(itr, (sum(cons != consold) / 100), pch = 19, col = "red2")
-
+      
       if (stationary.chk > (stopconv/chk.step)) {
         force.out <- 0
         message("$", appendLF = FALSE)
@@ -1068,44 +1068,44 @@ alexaNMF <- function(v, r, params)
 #'
 #' @keywords internal
 chihJenNMF <- function(v, r, params) {
-
+  
   # http://ieeexplore.ieee.org/document/4359171/
   # alternative approach for NMF
   # define params (hard-set)
   debug <- params$debug
   chk.step <- 50
   dot.eachSteps <- 2000
-
+  
   # retireve user-defined params
   eps <- params$eps
   num.processes <- r
   stopconv <- params$stopconv
   niter <- params$niter
   err.threshold <- 1e-10
-
+  
   # set.seed(231082)
   v <- base::as.matrix(v)
   rownames(v) <- NULL
   colnames(v) <- NULL
-
+  
   # Double check input matrix
   if (min(v) < 0)
     stop("Matrix entries cannot be negative")
   if (min(apply(v, 1, sum)) == 0)
     stop("Entries cannot all be equal to 0")
-
+  
   # Debugging plot
   if (debug)
     graphics::plot(-10, xlim = c(1000, niter), ylim = c( (0.1*err.threshold), 10), log = "xy",
                    xlab = "Iteration", ylab = "Variation", main = "Convergence")
-
+  
   # Initialize W0 and H0
   W.k <- do.call(cbind, lapply(1:num.processes, (function(i){
     out.o <- runif(n = nrow(v), min = eps, max = 100)
     out.o/sum(out.o)
   })))
   H.k <- matrix((1/num.processes), nrow = num.processes, ncol = ncol(v))
-
+  
   # Initialize looping vars
   itr <- 1
   chk.j <- 1
@@ -1113,7 +1113,7 @@ chihJenNMF <- function(v, r, params) {
   stationary.chk <- 0
   force.out <- 1
   while (itr < niter){
-
+    
     if (itr %% dot.eachSteps == 0) {
       if (stationary.chk > chk.step) {
         message(":", appendLF = FALSE)
@@ -1121,34 +1121,34 @@ chihJenNMF <- function(v, r, params) {
         message(".", appendLF = FALSE)
       }
     }
-
+    
     WtW <- base::t(W.k) %*% W.k
     gradH <- ((WtW %*% H.k) - (base::t(W.k) %*% v))
     H.b <- H.k; H.b[H.b<eps] <- eps;
     H.k <- H.k - (H.b / ((WtW %*% H.b) + eps)) * gradH
     HHt <- H.k %*% base::t(H.k)
     gradW <- (W.k %*% HHt) - (v %*% base::t(H.k))
-
+    
     W.b <- W.k; W.b[W.b < eps] <- eps
     W.k <- W.k - (W.b / ((W.b %*% HHt) + eps)) * gradW
     S <- apply(W.k, 2, sum)
-
+    
     W.k <- do.call(cbind, lapply(1:ncol(W.k), (function(ci){
       W.k[,ci] / S[ci]
     })))
     H.k <- do.call(rbind, lapply(1:nrow(H.k), (function(ri){
       H.k[ri,] * S[ri]
     })))
-
+    
     # optional ? Keep as is for now
     H.k <- do.call(cbind, lapply(1:ncol(H.k), (function(ci){
       H.k[,ci] / sum(H.k[,ci])
     })))
-
+    
     # Final non-negative check
     H.k[H.k < eps] <- eps
     W.k[W.k < eps] <- eps
-
+    
     # check convergence every 'chk.step' iterations
     if (itr > stopconv & itr %% chk.step == 0) {
       chk.j <- chk.j + 1
@@ -1157,10 +1157,10 @@ chihJenNMF <- function(v, r, params) {
       # compare to consold and reorder
       dist.measure <- proxy::dist(rbind(cons, cons.old), method = "cosine") [1]
       cons.old <- cons
-
+      
       if (debug)
         points(itr, (dist.measure + (err.threshold*0.1)), pch = 19, col = "red2")
-
+      
       # evaluate distance
       if (dist.measure < err.threshold) {
         stationary.chk <- stationary.chk + 1
@@ -1243,47 +1243,47 @@ decipherMutationalProcesses <- function (input,
   } else {
     stop("An error occurred!")
   }
-
+  
   # Make sure that we have at least 2 samples
   if (length(mutSignatures::getSampleIdentifiers(input)) < 2) {
-
+    
     stop("mutSignatures does not allow to extract mutational signatures from a single sample.
          Please, add more samples and run again!")
   }
-
+  
   # Make sure that we are extracting at least 2 signatures
   paramsList$num_processesToExtract <- as.integer(paramsList$num_processesToExtract)
   if (paramsList$num_processesToExtract < 1) {
-
+    
     stop("mutSignatures does not allow to extract mutational signatures from a single sample.
          Please, add more samples and run again!")
   } else if (paramsList$num_processesToExtract == 1 &&
              paramsList$analyticApproach == "denovo") {
-
+    
     zz <- apply(inputMAT, 1, sum, na.rm = TRUE)
     tot.zz <- sum(zz, na.rm = TRUE)
-
+    
     zz2 <- data.frame(Sign.1 = (zz / tot.zz))
     zz2 <- data.frame(Sign.1 = (zz / tot.zz))
     zzr <- getMutationTypes(input)
     rownames(zz2) <- zzr
-
+    
     out.sig <- as.mutation.signatures(zz2)
-
+    
     message("Since the user requested to extract a single mutational signature,
             bootstrapping was not performed. A normalized average signature
             is returned instead!")
-
+    
     return(out.sig)
   }
-
+  
   if (paramsList$analyticApproach == "denovo") {
     deconvData <- deconvoluteMutCounts(input_mutCounts = inputMAT,
                                        params = paramsList)
   } else {
     stop("An error occurred!")
   }
-
+  
   mutProcesses <- list()
   final.proc <- data.frame(deconvData$processes, stringsAsFactors = FALSE)
   colnames(final.proc) <- paste("Sign.", sapply(1:ncol(final.proc),
@@ -1379,13 +1379,13 @@ deconvoluteMutCounts <- function(input_mutCounts, params)
   rownames(input_mutCounts) <- NULL
   input_mutCounts <- base::as.matrix(input_mutCounts)
   bckgrnd.removed.mutCounts <- removeWeak(input_mutCounts, params)
-
+  
   # Make sure we have enough counts
   # else, remove samples
   # Carry sample identifiers forard as well
   includedSampleId <- 1:ncol(input_mutCounts)
   if (sum(apply(bckgrnd.removed.mutCounts$output.mutCounts, 2, sum) < 1) > 0) {
-
+    
     # Make a working copy of the matrix,
     # do this iteratively, just cause
     tmp_input_counts <- input_mutCounts
@@ -1397,7 +1397,7 @@ deconvoluteMutCounts <- function(input_mutCounts, params)
       bckgrnd.removed.mutCounts <- removeWeak(tmp_input_counts, params)
       RMV <- which(apply(bckgrnd.removed.mutCounts$output.mutCounts, 2, sum) < 1)
     }
-
+    
     # Inform about removed samples
     message(paste("Some of the samples (n=",
                   (ncol(input_mutCounts) - ncol(tmp_input_counts)),
@@ -1405,7 +1405,7 @@ deconvoluteMutCounts <- function(input_mutCounts, params)
     input_mutCounts <- tmp_input_counts
     includedSampleId <- tmp_includedSampleId
   }
-
+  
   # Back to analysis
   bckgrnd.removed.mutset <- bckgrnd.removed.mutCounts$removed.mutset
   bckgrnd.removed.mutCounts <- bckgrnd.removed.mutCounts$output.mutCounts
@@ -1436,26 +1436,26 @@ deconvoluteMutCounts <- function(input_mutCounts, params)
           tmp.out <- suppressMessages(
             extractSignatures(mutCountMatrix = bckgrnd.removed.mutCounts,
                               bootStrap = TRUE, params = params))
-
+          
         } else {
-
+          
           tmp.out <- extractSignatures(mutCountMatrix = bckgrnd.removed.mutCounts,
                                        bootStrap = TRUE, params = params)
         }
-
+        
         if (guided) {
           re.ORD <- rep(0, num_processesToExtract)
-
+          
           for (ki in 1:num_processesToExtract) {
-
+            
             my.i <- order(apply(abs(tmp.out$Wk - guide.W[, ki]), 2, sum))
-
+            
             if (ki > 1) {
               my.i[re.ORD[1:(ki - 1)]] <- max(my.i) + 1
             }
             re.ORD[ki] <- which.min(my.i)
           }
-
+          
         } else {
           re.ORD <- 1:num_processesToExtract
         }
@@ -1489,7 +1489,7 @@ deconvoluteMutCounts <- function(input_mutCounts, params)
                 num_totIterations, "iterations using", use.cores,
                 "cores"))
     suppressMessages(doParallel::registerDoParallel(cl))
-
+    
     # Prep before exporting
     alexaNMF <- alexaNMF
     leadZeros <- leadZeros
@@ -1497,7 +1497,7 @@ deconvoluteMutCounts <- function(input_mutCounts, params)
     frequencize <- frequencize
     bootstrapCancerGenomes <- bootstrapCancerGenomes
     chihJenNMF <- chihJenNMF
-
+    
     stuffToExp <- c()
     #stuffToExp <- c("alexaNMF", "leadZeros", "extractSignatures",
     #                "frequencize", "bootstrapCancerGenomes", "chihJenNMF")
@@ -1506,7 +1506,7 @@ deconvoluteMutCounts <- function(input_mutCounts, params)
       foreach::foreach(j = (1:num_totIterations),
                        .verbose = TRUE,
                        .packages = c("stats", "mutSignatures")) %dopar% {
-
+                         
                          if (j %in% base::as.integer(seq(1, num_totIterations, length.out = 100))) {
                            message(paste("(", j, ")", sep = ""), appendLF = FALSE)
                          }
@@ -1631,19 +1631,19 @@ extractSignatures <- function (mutCountMatrix,
   approach <- params$approach
   algorithm <- params$algorithm
   eps <- params$eps
-
+  
   if (bootStrap) {
     bstrpd.result <- bootstrapCancerGenomes(mutCountMatrix)
   } else {
     bstrpd.result <- mutCountMatrix
   }
-
+  
   #if (approach != "counts") {
   #  frq.bstrpd <- frequencize(bstrpd.result)
   #  bstrpd.result <-  frq.bstrpd$freqs
   #}
   bstrpd.result[bstrpd.result < eps] <- eps
-
+  
   if (algorithm %in% c("brunet", "alexa")) {
     nmf.results <- alexaNMF(v = bstrpd.result,
                             r = num_processesToExtract,
@@ -1656,7 +1656,7 @@ extractSignatures <- function (mutCountMatrix,
   # nmf.results
   tmp.w <- nmf.results$w
   tmp.h <- nmf.results$h
-
+  
   # This step seems useless for the new approach, as it divides or multiplies by 1
   # Keep for consistency and cause we let the user select what approach to use
   for (jj in 1:num_processesToExtract) {
@@ -1664,7 +1664,7 @@ extractSignatures <- function (mutCountMatrix,
     tmp.w[, jj] <- tmp.w[, jj]/tmp.tot
     tmp.h[jj, ] <- tmp.h[jj, ] * tmp.tot
   }
-
+  
   # modify for frequentized approach
   #if (approach != "counts"){
   #  if (length(frq.bstrpd$colSums) == ncol(tmp.h)) {
@@ -1673,22 +1673,22 @@ extractSignatures <- function (mutCountMatrix,
   #    })
   #  }
   #}
-
+  
   mutCountMatrix.reconstructed <- tmp.w %*% tmp.h
-
+  
   result.list <- list()
   result.list$Wk <- tmp.w
   result.list$Hk <- tmp.h
   result.list$mutCounts.reconstructed <- mutCountMatrix.reconstructed
   result.list$mutCounts.errors <- bstrpd.result - mutCountMatrix.reconstructed
-
+  
   if (params$logIterations != "lite") {
     result.list$inputMatrix <- bstrpd.result
     result.list$cosDist <- proxy::dist(rbind(base::as.vector(bstrpd.result),
                                              base::as.vector(mutCountMatrix.reconstructed)),
                                        method = "cosine")[1]
   }
-
+  
   return(result.list)
 }
 
@@ -1854,10 +1854,10 @@ setMutClusterParams <- function(num_processesToExtract = 2,
 #' @keywords internal
 custom_fcnnls <- function (mutCounts, signatures)
 {
-
+  
   # Hardcode eps
   eps <-  0
-
+  
   # Initial checks
   if (sum(c(dim(signatures), dim(mutCounts)) < 1) > 0) {
     stop("Bad input!")
@@ -1865,16 +1865,16 @@ custom_fcnnls <- function (mutCounts, signatures)
   if (nrow(signatures) != nrow(mutCounts)) {
     stop("Bad input: matrices have imcompatible size")
   }
-
+  
   # Define W, and comute matrix cross-prods
   W <- matrix(0, ncol(signatures), ncol(mutCounts))
   maxiter = 5 * ncol(signatures)
   xxp <- base::crossprod(signatures)
   xyp <- base::crossprod(signatures, mutCounts)
-
+  
   # Solve, aka compute K
   K <- base::solve(xxp, xyp)
-
+  
   # Prep for looping
   Ps <- K > 0
   K[!Ps] <- 0
@@ -1882,13 +1882,13 @@ custom_fcnnls <- function (mutCounts, signatures)
   Fset <- which(apply(Ps, 2, sum) != ncol(signatures))
   oitr <- 0
   iter <- 0
-
+  
   while (length(Fset) > 0) {
     oitr <- oitr + 1
     K[, Fset] <- custom_cssls(xxp,
                               xyp[, Fset, drop = FALSE],
                               Ps[, Fset, drop = FALSE])
-
+    
     keep <- apply(K[, Fset, drop = FALSE] < eps, 2, sum) > 0
     Hset <- Fset[keep]
     if (length(Hset) > 0) {
@@ -1914,20 +1914,20 @@ custom_fcnnls <- function (mutCounts, signatures)
         idx2zero <- (Hset - 1) * ncol(signatures) + minIdx
         D[idx2zero] <- 0
         Ps[idx2zero] <- FALSE
-
+        
         K[, Hset] <- custom_cssls(xxp,
                                   xyp[, Hset, drop = FALSE],
                                   Ps[, Hset, drop = FALSE])
-
+        
         Hset <- which(apply(K < eps, 2, sum) > 0)
         nHset <- length(Hset)
       }
     }
     W[, Fset] <- xyp[, Fset, drop = FALSE] - xxp %*% K[, Fset, drop = FALSE]
-
+    
     tmp_coeff <- ifelse(!(Ps[, Fset, drop = FALSE]), 1, 0)
     Jset <- which(apply((tmp_coeff *  W[, Fset, drop = FALSE]) > eps, 2, sum) == 0)
-
+    
     Fset <- base::setdiff(Fset, Fset[Jset])
     if (length(Fset) > 0) {
       tmp_coeff <- ifelse(!Ps[, Fset, drop = FALSE], 1, 0)
@@ -1963,7 +1963,7 @@ custom_fcnnls <- function (mutCounts, signatures)
 custom_cssls <- function (CtC, CtA, Pset)
 {
   K = matrix(0, nrow(CtA), ncol(CtA))
-
+  
   lVar <- nrow(Pset)
   pRHS <- ncol(Pset)
   codedPset <- as.numeric(2^(seq(lVar - 1, 0, -1)) %*% Pset)
@@ -2048,13 +2048,13 @@ attachMutType <- function(mutData,
     if (!(var2_colName %in% colnames(mutData)))
       stop ("Invalid var2 column")
   }
-
+  
   if (!is.character(mutType_colName) |
       length(mutType_colName) > 1)
     stop("Bad mutType_colName")
   if(mutType_colName %in% colnames(mutData))
     stop ("mutType_colName already exists as column name in the current dataset")
-
+  
   # convert factors to chars
   mutData <- data.frame(mutData, stringsAsFactors = FALSE, row.names = NULL)
   my.key.cols <- c(ref_colName, var_colName, var2_colName, context_colName)
@@ -2062,21 +2062,21 @@ attachMutType <- function(mutData,
   for (clmn in my.key.cols) {
     mutData[,clmn] <- base::as.character(base::as.vector(mutData[,clmn]))
   }
-
+  
   message("Assigning mutation types ", appendLF = FALSE)
-
+  
   mutData[,mutType_colName] <- sapply(1:nrow(mutData), (function(i){
-
+    
     if (nrow(mutData) > 1000 & i %in% base::as.integer(seq(1, nrow(mutData),length.out = 20)))
       message(".", appendLF = FALSE)
-
+    
     # first, extract elems and check for middle base to match the reference
     ctx.len <- nchar(mutData[i,context_colName])
     half.ln <- (ctx.len - 1) / 2
     mid.seq <- substr(mutData[i,context_colName], (half.ln + 1), (half.ln + 1))
     pre.seq <- substr(mutData[i,context_colName], 1, half.ln)
     post.seq <- substr(mutData[i,context_colName], (half.ln + 2), ctx.len)
-
+    
     if((mid.seq !=  mutData[i,ref_colName]) ||
        (is.null(var2_colName) & mid.seq == mutData[i,var_colName]) ||
        (tryCatch({
@@ -2098,7 +2098,7 @@ attachMutType <- function(mutData,
       } else {
         mut.base <- NA
       }
-
+      
       # match, format and return according to a standard format (for now)
       if (is.na(mut.base)) {
         NA
@@ -2108,25 +2108,25 @@ attachMutType <- function(mutData,
     }
   }))
   message(". Done!", appendLF = TRUE)
-
+  
   if (sum(is.na(mutData[,mutType_colName])) > 0) {
     message(paste("Removing",sum(is.na(mutData[,mutType_colName])), "positions."))
     mutData <- mutData[!is.na(mutData[,mutType_colName]),]
   }
-
+  
   # Now, apply revCompl transformation
   message("Now applying RevCompl transformation", appendLF = FALSE)
   if (mutType_dict == "alexa") {
     idx <- grep("^((G|A)\\.)", mutData[,mutType_colName])
     mutData[idx,mutType_colName] <- sapply(mutData[idx,mutType_colName], (function(seq){
-
+      
       base.wt  <- revCompl(gsub("\\..+$", "", seq))
       base.mut <- revCompl(gsub("^.+\\.", "", gsub("\\[.+$", "", seq)))
       seq.wt   <- revCompl(gsub("^.+\\[", "", gsub("\\]\\[.+$", "", seq)))
       seq.mut  <- revCompl(gsub("^.+\\]\\[", "", gsub("\\]$", "", seq)))
       paste(base.wt,".",base.mut, "[", seq.wt, "][", seq.mut, "]", sep = "", collapse = "")
     }))
-
+    
   } else if (mutType_dict == "custom") {
     idx <- grep("^((G|T)\\.)", mutData[,mutType_colName])
     mutData[idx,mutType_colName] <- sapply(mutData[idx,mutType_colName], (function(seq){
@@ -2137,7 +2137,7 @@ attachMutType <- function(mutData,
       paste(base.wt,".",base.mut, "[", seq.wt, "][", seq.mut, "]", sep = "", collapse = "")
     }))
   }
-
+  
   message(". Done!", appendLF = TRUE)
   message("Final formatting", appendLF = FALSE)
   #Attach the format of interest
@@ -2149,7 +2149,7 @@ attachMutType <- function(mutData,
     half.len <- (nchar(seq.wt) - 1 ) / 2
     pre.seq <- substr(seq.wt, 1, half.len)
     post.seq <-substr(seq.wt, half.len + 2, nchar(seq))
-
+    
     if (format == 1) {
       # --> N[N>M]N
       paste(pre.seq, "[", base.wt, ">", base.mut, "]", post.seq, sep = "", collapse = "")
@@ -2161,9 +2161,9 @@ attachMutType <- function(mutData,
       paste(base.wt,".",base.mut, "[", seq.wt, "][", seq.mut, "]", sep = "", collapse = "")
     }
   }))
-
+  
   message(". Done!", appendLF = TRUE)
-
+  
   return(mutData)
 }
 
@@ -2298,7 +2298,7 @@ frequencize <- function(countMatrix,
 {
   out <- list()
   cf <- ifelse(permille, 1000, 1)
-
+  
   out[["colSums"]] <- apply(countMatrix, 2, sum)
   out[["freqs"]] <- cf * apply(countMatrix, 2, (function(clmn){clmn/sum(clmn)}))
   return(out)
@@ -2347,10 +2347,10 @@ getCosmicSignatures <- function(forceUseMirror = FALSE, asMutSign = TRUE)
                       "T[T>A]A", "T[T>A]C", "T[T>A]G", "T[T>A]T", "T[T>C]A", "T[T>C]C",
                       "T[T>C]G", "T[T>C]T", "T[T>G]A", "T[T>G]C", "T[T>G]G", "T[T>G]T")
   cosmic.url <- "http://cancer.sanger.ac.uk/cancergenome/assets/signatures_probabilities.txt"
-
+  
   #initialize variable
   my_fullW <- NULL
-
+  
   if (!forceUseMirror) {
     my_fullW <- tryCatch({TMP <- suppressWarnings(read.delim(cosmic.url, header = TRUE));
     rownames(TMP) <- TMP$Somatic.Mutation.Type;
@@ -2358,7 +2358,7 @@ getCosmicSignatures <- function(forceUseMirror = FALSE, asMutSign = TRUE)
     TMP},
     error = function(e) NULL)
   }
-
+  
   # private mirror
   if (is.null(my_fullW)) {
     private.mirror.url <- "http://www.labwizards.com/rlib/mutSignatures/cosmic.signatures.csv"
@@ -2376,7 +2376,7 @@ getCosmicSignatures <- function(forceUseMirror = FALSE, asMutSign = TRUE)
       obj2rt <- my_fullW[mutType.labels,]
       if(asMutSign)
         obj2rt <- mutSignatures::as.mutation.signatures(obj2rt)
-
+      
       return(obj2rt)
     } else {
       message("An error occurred!")
@@ -2387,62 +2387,132 @@ getCosmicSignatures <- function(forceUseMirror = FALSE, asMutSign = TRUE)
 
 #' Import Mutation data from VCF files.
 #'
-#' Import Mutation data from VCF files. The columns are expected in the following order:
-#' c("CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT"). Optional columns
-#' can be present to inform about sample ID or other info.
+#' Import Mutation data from VCF files. The first 8 columns are expected in the 
+#' following order: 
+#' c("CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO"). 
+#' Optional columns can be present to inform about sample ID or other info.
 #'
-#' @param vcfFiles character vector, includes the names of the VCF files to be analyzed
+#' @param vcfFiles character vector, includes the names of the VCF files 
+#' to be analyzed
 #' @param sampleNames character vector with alternative sample names (otherwise,
-#' VCF file names will be ised to identify each sample).
+#' VCF file names will be used as sample identifiers)
+#' @param sampleNameColumn string, name of the column that will be 
+#' added to inform about the sample ID where each variant wes identified
+#' 
 #'
 #' @return a concatenated data.frame with all variants found in the input VCF files. Sample
-#' ID is stored in the "SAMPLEID" column.
+#' ID is stored in the column selected via the `sampleNameColumn` argument.
 #'
-#' @details This function is part of the user-interface set of tools included in mutSignatures. This is an exported function.
+#' @details This function is part of the user-interface set of tools included 
+#' in mutSignatures. This is an exported function.
 #'
 #' @author Damiano Fantini, \email{damiano.fantini@@gmail.com}
 #'
 #' @references
-#' More information and examples about mutational signature analysis can be found here:
+#' More information and examples about mutational signature analysis 
+#' can be found here:
 #' \enumerate{
 #'   \item \bold{Official website}: \url{http://www.mutsignatures.org}
-#'   \item \bold{More info and examples} about the mutSignatures R library: \url{https://www.data-pulse.com/dev_site/mutsignatures/}
-#'   \item \bold{Oncogene paper}, Mutational Signatures Operative in Bladder Cancer: \url{https://www.nature.com/articles/s41388-017-0099-6}
+#'   \item \bold{More info and examples} about the mutSignatures R library: 
+#'   \url{https://www.data-pulse.com/dev_site/mutsignatures/}
+#'   \item \bold{Oncogene paper}, Mutational Signatures Operative in Bladder 
+#'   Cancer: \url{https://www.nature.com/articles/s41388-017-0099-6}
 #'  }
 #'
 #' @importFrom utils read.delim
 #' @export
-importVCFfiles <- function(vcfFiles, sampleNames = NULL){
-
-  my.colnames <- c("CHROM", "POS", "ID", "REF", "ALT", "QUAL",
-                   "FILTER", "INFO", "FORMAT", "XTR1", "XTR2", "XTR3")
-
-  if (is.null(sampleNames) | length(sampleNames) != length(vcfFiles)){
-
-    bypassNames <- paste("sample", 1:length(vcfFiles), sep = ".")
-
-    sampleNames <- vcfFiles
-    sampleNames <- sub("\\.vcf$", "", sub("^.*(\\\\|/)", "", tolower(sampleNames)))
-
-    sampleNames[sampleNames == ""] <- bypassNames[sampleNames == ""]
-
-  }
-  out <- sapply(1:length(vcfFiles), (function(j){
-    x <- vcfFiles[j]
-    if (!file.exists(x)) {
-      NULL
-    } else {
-      tmpVCF <- read.delim(x, comment.char = '#', header = F, stringsAsFactors = F)
-
-      for (i in 1:ncol(tmpVCF)) {
-        colnames(tmpVCF)[i] <- my.colnames[i]
+importVCFfiles <- function (vcfFiles, sampleNames = NULL, 
+                            sampleNameColumn = 'SAMPLEID') 
+{
+  # scan for header f(x) | inner
+  scan_for_header <- function(x) {
+    con <- file(x, "r")
+    outhead <- NULL
+    
+    y <- tryCatch({
+      while ( TRUE ) {
+        line <- readLines(con, n = 1)
+        if (grepl('^#CHROM', x = line)) {
+          outhead <- sub('^#', '', line)
+          outhead <- strsplit(x = outhead, split = '\t')[[1]] 
+          break
+        }
       }
-      tmpVCF$SAMPLEID <- sampleNames[j]
-      tmpVCF
+      outhead
+    }, 
+    error = function(e) { NULL }, 
+    finally = close(con))
+    
+    if (length(y) < 8) {
+      y <- NULL
+    } else {
+      req_colnames <- c("CHROM", "POS", "ID", "REF", 
+                        "ALT", "QUAL", "FILTER", "INFO")
+      CHK <- sum(y[1:8] == req_colnames) == 8 
+      if (!CHK) {
+        y <- NULL
+      }
     }
-  }), simplify = FALSE, USE.NAMES = TRUE)
+    return(y)
+  }
+  fix_dfs <- function(x, cl) {
+    x <- x[, colnames(x) %in% cl]
+    miss <- cl[!cl %in% colnames(x)]
+    if (length(miss) > 0) {
+      for (ci in miss) {
+        x[, ci] <- NA
+      }
+    }
+    x <- x[, cl]
+    return(x)
+  }    
+  
+  # required colnames
+  req_colnames <- c("CHROM", "POS", "ID", "REF", 
+                    "ALT", "QUAL", "FILTER", "INFO")
+  
+  if (is.null(sampleNames) || length(sampleNames) != length(vcfFiles)) {
+    bypassNames <- paste("sample", seq_along(vcfFiles), sep = ".")
+    sampleNames <- vcfFiles
+    
+    sampleNames <- sub("\\.vcf$", "", 
+                       sub("^.*(\\\\|/)", "", tolower(sampleNames)))
+    
+    sampleNames <- sub("\\.vcf\\.gz$", "", sampleNames)
+    
+    i_to_repl <- sampleNames == ""
+    sampleNames[i_to_repl] <- bypassNames[i_to_repl]
+  }
+  
+  out <- list()
+  for (j in seq_along(vcfFiles)) {
+    x <- vcfFiles[j]
+    if (file.exists(x)) {
+      
+      hea0 <- scan_for_header(x)
+      
+      if (!is.null(hea0)) {
+        tmpVCF <- read.delim(x, comment.char = "#", header = F, 
+                             stringsAsFactors = F)
+        
+        tmpVCF <- tryCatch({
+          colnames(tmpVCF) <- hea0
+          tmpVCF[, sampleNameColumn] <- sampleNames[j]
+          tmpVCF  
+        }, error = function(e) { NULL })
+        
+        out[[length(out) + 1]] <- tmpVCF
+      }
+    }
+  }
+  
+  # harmonize colnames
+  all_colnames <- unique(c(req_colnames, do.call(c, lapply(out, colnames))))
+  out <- lapply(out, fix_dfs, cl = all_colnames)
+  
+  # merge
   out <- do.call(rbind, out)
-  #names(out) <- sub("\\.vcf$", "", names(out))
+  rownames(out) <- NULL
   return(out)
 }
 
@@ -2481,17 +2551,17 @@ plotSignExposures <- function(mutCount, top = 50) {
   count <- NULL
   feature <- NULL
   Signature <- NULL
-
+  
   sampleLabs <- rownames(mutCount)
   rownames(mutCount) <- NULL
-
+  
   nuSmplOrder <- order(apply(mutCount, 1, sum), decreasing = TRUE)
   mutCount <- mutCount[nuSmplOrder,]
   if (!is.null(sampleLabs))
     sampleLabs <- sampleLabs[nuSmplOrder]
-
+  
   rownames(mutCount) <- NULL
-
+  
   if (is.null(top)) {
     mutDF <- table2df(dataMatrix = mutCount)
   } else if(is.na(base::as.numeric(top[1]))){
@@ -2503,15 +2573,15 @@ plotSignExposures <- function(mutCount, top = 50) {
     if (!is.null(sampleLabs))
       sampleLabs <- sampleLabs[1:top]
   }
-
+  
   mutDF$sample <- 100000 + base::as.numeric(base::as.character(mutDF$sample))
   mutDF$sample <- base::as.character(mutDF$sample)
-
+  
   tryCatch({mutDF$inputLabel <- do.call(c, lapply(sampleLabs,
                                                   rep, times = ncol(mutCount)))},
            error = function(e) {
              message("damn")})
-
+  
   mutDF$Signature <- factor(mutDF$feature, levels = rev(colnames(mutCount)))
   bp <- ggplot2::ggplot(data=mutDF, ggplot2::aes(x=sample, y=count, fill=Signature)) +
     ggplot2::geom_bar(stat="identity")
@@ -2527,7 +2597,7 @@ plotSignExposures <- function(mutCount, top = 50) {
                    plot.title = ggplot2::element_text(hjust = 0.5)) +
     ggplot2::scale_y_continuous(expand=c(0,0),
                                 limits = c(0, 1.2 * max(apply(mutCount, 1, function(rx) sum(rx, na.rm = TRUE)))))
-
+  
   return(bp)
 }
 
@@ -2573,7 +2643,7 @@ plotMutTypeProfile <- function(mutCounts,
                                cols = c("#4eb3d3", "#040404", "#b30000", "#bdbdbd", "#41ab5d", "#dd3497"),
                                main = "MutType Profile")
 {
-
+  
   mutLabs <- toupper(mutLabs)
   if (!sum(regexpr("^(A|C|G|T)(\\[)(A|C|G|T)(>)(A|C|G|T)(\\])(A|C|G|T)$", toupper(mutLabs)) > 0) == length(mutLabs)) {
     message("mutTypes are in a non-standard format (ie, not Sanger 'A[G>A]T' style)")
@@ -2581,13 +2651,13 @@ plotMutTypeProfile <- function(mutCounts,
   } else {
     altPlot <- 0
   }
-
-
+  
+  
   if (length(mutCounts) != length(mutLabs))
     stop("Mutation Type Labels and Mutation Counts do not match!")
-
+  
   mutCounts[is.na(mutCounts)] <- 0
-
+  
   if (freq == TRUE) {
     if (ylim[1] == "auto")
       ylim <- c(0,0.2)
@@ -2597,10 +2667,10 @@ plotMutTypeProfile <- function(mutCounts,
       ylim = c(0,(1.05*max(mutCounts)))
     freqs <- mutCounts
   }
-
+  
   tinyMut <- gsub("\\](.*)$", "",
                   gsub("^(.*)\\[", "", toupper(mutLabs)))
-
+  
   # Order the frequencies
   first.out <- lapply(sort(unique(tinyMut)), (function(mt){
     idxKeep <- which(tinyMut == mt)
@@ -2610,26 +2680,26 @@ plotMutTypeProfile <- function(mutCounts,
     out
   }))
   names.first.out <- sort(unique(tinyMut))
-
+  
   # Add a spacer
   second.out <- lapply(first.out, (function(vct){
     c(vct, 0)
   }))
-
+  
   # Wrap together
   third.out <- do.call(c, second.out)
   third.out <- third.out[-length(third.out)]
-
+  
   # Define color scheme
   col.out <- lapply(1:length(first.out), (function(ii){
     rep(cols[ii], (length(first.out[[ii]]) + 1))
   }))
   col.out <- do.call(c, col.out)
   col.out <- col.out[-length(col.out)]
-
+  
   third.out[third.out>max(ylim)] <- max(ylim)
   third.shortLab <- gsub("\\[([[:alpha:]]>[[:alpha:]])\\]","-", names(third.out))
-
+  
   xpos <- graphics::barplot(third.out,
                             col = col.out,
                             ylim = ylim,
@@ -2638,13 +2708,13 @@ plotMutTypeProfile <- function(mutCounts,
                             ylab = ylab,
                             border = NA,
                             main = main)
-
+  
   xpos.out <- lapply(1:length(first.out), (function(ii){
     c(rep(ii, length(first.out[[ii]])),0)
   }))
   xpos.out <- do.call(c, xpos.out)
   xpos.out <- xpos.out[-length(xpos.out)]
-
+  
   #(max(ylim)*0.0075*0.2)
   graphics::box()
   graphics::axis(side = 1, tick = FALSE,
@@ -2653,25 +2723,25 @@ plotMutTypeProfile <- function(mutCounts,
                  at = xpos,
                  labels = third.shortLab,
                  las = 2)
-
+  
   my.y <- seq(min(ylim), max(ylim), length.out = 4)
   if (max(ylim) > 1.75) {
     my.y.labs <- format(round(my.y, digits = 0))
   } else {
     my.y.labs <- format(round(my.y, digits = 2))
   }
-
+  
   graphics::axis(side = 2, tick = -0.005,
                  at = my.y, labels = my.y.labs,
                  las = 1, cex.axis = 0.75)
-
+  
   zz <- unique(xpos.out)
   zz <- zz[zz>0]
   lab.xx <- sapply(zz, (function(i){
     base::mean(xpos[,1][xpos.out == i])
   }))
   graphics::mtext(names.first.out, side = 1, line = 1.5, at = lab.xx, cex = 0.8, col = cols)
-
+  
   graphics::mtext(xlab, side = 1, line = 3.0, at = base::mean(xpos[,1]), cex = 1)
   # done! No return, just a plot!
 }
@@ -2722,15 +2792,15 @@ prelimProcessAssess <- function(input,
                                    num_parallelCores = 1,
                                    debug = FALSE,
                                    logIterations = "full")
-
+  
   tmpParams <- coerceObj(x = tmpParams, to = "list")
   input_mutCounts <- coerceObj(x = input, to = "matrix")
-
+  
   if (ncol(input@counts) < 2) {
     stop("It is not possible to analyze mtational signatures in a single sample.
          Please, include two or more samples before running this analysis.")
   }
-
+  
   if (tmpParams$approach != "counts") {
     tmpFRQ.input <- frequencize(input_mutCounts)
     tmpParams$approach <- "counts"
@@ -2743,39 +2813,39 @@ prelimProcessAssess <- function(input,
   total.mutationTypes <- nrow(bckgrnd.removed.mutCounts)
   total.samples <- ncol(bckgrnd.removed.mutCounts)
   tmpParams$num_totIterations <- 1
-
+  
   # Calc initial (max) error
   medianMaxErr <- sum(base::t(sapply(1:nrow(bckgrnd.removed.mutCounts), (function(i){
     ((stats::median(bckgrnd.removed.mutCounts[i,]) - bckgrnd.removed.mutCounts[i,]))^2
   }))))
-
+  
   # Message
   if(verbose)
     message("Preliminary Mutational Process Assessment: ", appendLF = FALSE)
-
+  
   outRes <- lapply(1:maxProcess, (function(i){
     tmpParams$num_processesToExtract <- i
     tmpRes <- suppressWarnings(suppressMessages(
       extractSignatures(mutCountMatrix = bckgrnd.removed.mutCounts,
                         params = tmpParams,
                         bootStrap = FALSE)))
-
+    
     #apply(tmpRes$mutCounts.reconstructed, 2, sum)
     #mutCounts.reconstructed
     #tmpErr <- sum((tmpRes$mutCounts.errors)^2)
     tmpErr <- sum((bckgrnd.removed.mutCounts - tmpRes$mutCounts.reconstructed) ^ 2)
-
+    
     if(verbose)
       message(".", appendLF = FALSE)
     tmpErr
   }))
   if(verbose)
     message("", appendLF = TRUE)
-
+  
   err.points <- c(medianMaxErr, do.call(c, outRes))
   err.points <- (-1) * (err.points - max(err.points))
   err.points <- err.points / max(err.points, na.rm = TRUE)
-
+  
   if (plot) {
     graphics::plot(err.points ~ c(0:(length(err.points) - 1)),
                    type = "n", las = 1, axes = FALSE,
@@ -2789,7 +2859,7 @@ prelimProcessAssess <- function(input,
     graphics::title(ylab="Error (% vs. Median)", line=3.1, cex.lab=1.2, font = 2)
     graphics::box()
   }
-
+  
   return(data.frame(numProcess = c(0:(length(err.points) - 1)),
                     percentErr = (1 - err.points),
                     stringsAsFactors = TRUE))
@@ -2837,7 +2907,7 @@ matchSignatures <- function(mutSign,
   # avoid NOTEs
   newSign <- NULL
   refSign <- NULL
-
+  
   if(is.null(reference)){
     my.ref <- getCosmicSignatures()
   } else if (class(reference) == "mutationSignatures") {
@@ -2851,36 +2921,36 @@ matchSignatures <- function(mutSign,
   if (sum(!getMutationTypes(mutSign) %in% getMutationTypes(my.ref)) != 0 |
       sum(!getMutationTypes(my.ref) %in% getMutationTypes(mutSign)) != 0)
     stop("non-compatible mutation types")
-
+  
   # Coerce to tabular objects
   my.ref2 <- my.ref@mutationFreq
   if (ncol(my.ref2) < 2) { stop("You need to provide at least to reference signatures")}
   dimnames(my.ref2) <- list(my.ref@mutTypes[,1],
                             my.ref@signatureId[,1])
-
+  
   mutSign2 <- mutSign@mutationFreq
   if (ncol(mutSign2) < 2) { stop("You need to provide at least two signatures to compare to the references")}
   dimnames(mutSign2) <- list(mutSign@mutTypes[,1],
                              mutSign@signatureId[,1])
-
+  
   my.ref <- my.ref2
   mutSign <- mutSign2[rownames(my.ref), ]
-
+  
   #Debug
   #message("Debug - proceeded! :-)")
-
+  
   distMat <- sapply(1:ncol(mutSign), function(i){
     TMP <- cbind(tmpSig=mutSign[,i], my.ref)
     TMPdist <- proxy::dist(TMP, method = method, by_rows = FALSE)
     TMPdist[1:ncol(my.ref)]
   })
-
+  
   dimnames(distMat) <- list(colnames(my.ref), colnames(mutSign))
   p <- NULL
   nuDF <- NULL
-
+  
   if(plot) {
-
+    
     nuDF <- do.call(rbind, lapply(1:nrow(distMat), function(i){
       do.call(rbind, lapply(1:ncol(distMat), function(j){
         data.frame(newSign = colnames(distMat)[j],
@@ -2889,7 +2959,7 @@ matchSignatures <- function(mutSign,
                    stringsAsFactors = FALSE)
       }))
     }))
-
+    
     fillLims <- c(round(min(nuDF$dist)), round(max(nuDF$dist)))
     if (fillLims[1] != fillLims[2]) {
       nuDF$dist[nuDF$dist >= fillLims[2]] <- fillLims[2]
@@ -2901,20 +2971,20 @@ matchSignatures <- function(mutSign,
                       "Please, try selecting more signatures to compare, and run the function again. \n",
                       "If the error persists, please email the maintainer ",
                       "with a reproducible example of what has happened. Thank you.")
-
+      
       stop(msg00)
     }
-
+    
     # Quick cosine fix
     nuDF$dist[nuDF$dist < fillLims[1]] <- fillLims[1]
     nuDF$dist[nuDF$dist > fillLims[2]] <- fillLims[2]
-
-
+    
+    
     p <- ggplot2::ggplot(nuDF, ggplot2::aes(y=newSign, x=refSign))
     p <- p + ggplot2::geom_tile(ggplot2::aes(fill=dist), width=.875, height=.875)
     p <- p + ggplot2::scale_y_discrete(limits=base::rev(colnames(distMat)))
     p <- p + ggplot2::scale_x_discrete(limits=rownames(distMat))
-
+    
     p <- p + ggplot2::theme_minimal(base_size = 11) + ggplot2::labs(x = "", y = "")
     p <- p + ggplot2::labs(title = "Signature Comparison")
     #p <- p + scale_fill_gradient2(low = "#f40000", mid = "#ffe9e9", high = "white",
@@ -2924,13 +2994,13 @@ matchSignatures <- function(mutSign,
     #p <- p + scale_fill_gradient(low = "red2", high = "white",
     #                             guide = "colourbar",
     #                             name = paste(method, "\ndistance", sep = ""))
-
+    
     nuMid <- base::as.numeric(stats::quantile(distMat, probs = 0.2, na.rm = TRUE))
     #nuMid2 <- base::as.numeric(mean(distMat, na.rm = TRUE))
     nuMax <- fillLims
     # Try adjust
     #nuMid <- max(c(nuMid, 0.5), na.rm = TRUE)
-
+    
     if (!is.null(threshold)) {
       if (!is.na(base::as.numeric(threshold[1]))){
         nuMid <- base::as.numeric(threshold[1])
@@ -2938,7 +3008,7 @@ matchSignatures <- function(mutSign,
     } else if (fillLims[1] == 0 && fillLims[2] == 1) {
       if (nuMid < 0.425) { nuMid <- 0.425}
     }
-
+    
     p <- p + ggplot2::scale_fill_gradient2(low = "#f40000", mid = "#ffe9e9", high = "white",
                                            midpoint = nuMid,
                                            guide = "colourbar",
@@ -2962,7 +3032,7 @@ matchSignatures <- function(mutSign,
   out[["distanceMatrix"]] <- distMat
   out[["distanceDataFrame"]] <- nuDF
   out[["plot"]] <- p
-
+  
   return(out)
 }
 
@@ -3013,14 +3083,14 @@ processVCFdata <- function(vcfData,
   # make sure
   if (verbose)
     message("Processing VCF data: ", appendLF = FALSE)
-
+  
   #Initialize
   reprepInput <- NULL
-
+  
   # Fill reprepInput
   if (!is.null(sample_colName)){
     if (length(sample_colName) == 1 & sample_colName[1] %in% colnames(vcfData)){
-
+      
       # compute how many unique samples
       unique.SID <- unique(vcfData[,sample_colName])
       reprepInput <- lapply(unique.SID, function(iID) {
@@ -3035,22 +3105,22 @@ processVCFdata <- function(vcfData,
     #initialize input as list
     reprepInput <- list(vcfData)
   }
-
+  
   # Triple check
   if(is.null(reprepInput))
     stop("Bad input")
-
+  
   # Now loop
   bigOUT <- lapply(1:length(reprepInput), (function(jj){
     finalOut <- tryCatch({
       if(verbose)
         message(paste("[", jj, "/", length(reprepInput), "]", sep = ""), appendLF = F)
-
+      
       tmpVCF <- suppressMessages({filterSNV(dataSet = reprepInput[[jj]],
                                             seq_colNames = c(ref_colName, alt_colName))})
       if (verbose)
         message(".", appendLF = FALSE)
-
+      
       tmpVCF <- suppressMessages({attachContext(mutData = tmpVCF,
                                                 chr_colName = chr_colName,
                                                 start_colName = pos_colName,
@@ -3059,14 +3129,14 @@ processVCFdata <- function(vcfData,
                                                 BSGenomeDb = BSGenomeDb)})
       if (verbose)
         message(".", appendLF = F)
-
+      
       tmpVCF <- suppressMessages({removeMismatchMut(mutData = tmpVCF,
                                                     refMut_colName = ref_colName,
                                                     context_colName = "context",
                                                     refMut_format = "N")})
       if (verbose)
         message(".", appendLF = F)
-
+      
       tmpVCF <- suppressMessages({attachMutType(mutData = tmpVCF,
                                                 ref_colName = ref_colName,
                                                 var_colName = alt_colName,
@@ -3074,13 +3144,13 @@ processVCFdata <- function(vcfData,
                                                 context_colName = "context")})
       if (verbose)
         message(".", appendLF = F)
-
+      
       tmpVCF
     }, error = function(e) NA)
   }))
-
+  
   bigOUT <- do.call(rbind, bigOUT)
-
+  
   if(verbose) {
     message("", appendLF = T)
     message("Done!", appendLF = T)
@@ -3134,7 +3204,7 @@ removeMismatchMut <- function(mutData,
           name, start and end positions")
   if (! refMut_format %in% c("N>N", "N"))
     stop("Unrecognized refMut_format")
-
+  
   output <- data.frame(mutData, stringsAsFactors = FALSE, row.names = NULL)
   colnames(output) <- colnames(mutData)
   if (refMut_format == "N>N") {
@@ -3142,12 +3212,12 @@ removeMismatchMut <- function(mutData,
     output$mutSite.dnaSeq.Mut <- substr(mutData[,refMut_colName], 3, 3)
     refMut_colName <- "mutSite.dnaSeq.Ref"
   }
-
+  
   pos.to.extr <- (0.5 * (nchar(output[,context_colName]) - 1)) + 1
   keep.id <- output[,refMut_colName] == substr(output[,context_colName], pos.to.extr, pos.to.extr)
   if (sum( keep.id == FALSE) > 0)
     message(paste("Removing", sum( keep.id == FALSE), "rows because of mismatch"))
-
+  
   output <- output[keep.id, ]
   rownames(output) <- NULL
   return(output)
@@ -3193,10 +3263,10 @@ resolveMutSignatures <- function(mutCountData,
   # process expected objects
   if (class(mutCountData) == "mutationCounts")
     mutCountData <- coerceObj(x = mutCountData, to = "data.frame")
-
+  
   if (class(signFreqData) == "mutationSignatures")
     signFreqData <- coerceObj(x = signFreqData, to = "data.frame")
-
+  
   if (!(sum(!rownames(mutCountData) %in% rownames(signFreqData)) == 0 &
         sum(! rownames(signFreqData) %in% rownames(mutCountData)) == 0)) {
     stop (paste("There is an issue with the mutTypes.",
@@ -3205,7 +3275,7 @@ resolveMutSignatures <- function(mutCountData,
                 "Matrix... check rownames()"))
   }
   mutCountData <- mutCountData[rownames(signFreqData),]
-
+  
   if (byFreq) {
     full.Y <- apply(mutCountData, 2, (function(clmn){
       1000 * clmn / sum(clmn)
@@ -3213,24 +3283,24 @@ resolveMutSignatures <- function(mutCountData,
   } else {
     full.Y <- base::as.matrix(mutCountData)
   }
-
-
+  
+  
   # record sum counts
   mutSums <- apply(mutCountData, 2, sum)
-
+  
   # make sure we have frequencies
   my.signatures <- apply(signFreqData, 2, (function(clmn){
     clmn / sum(clmn)
   }))
   X <- base::as.matrix(my.signatures)
-
+  
   # initialize results collector
   out <- list()
-
+  
   res <- custom_fcnnls(mutCounts = full.Y, signatures = X)
-
+  
   beta.hat <- data.frame(base::t(res$coef / ifelse (byFreq, 1000, 1)), stringsAsFactors = FALSE)
-
+  
   colnames(beta.hat) <- colnames(signFreqData)
   rownames(beta.hat) <- colnames(mutCountData)
   out$results <- list()
@@ -3238,21 +3308,21 @@ resolveMutSignatures <- function(mutCountData,
   out$coeffs$beta.hat <- beta.hat
   out$coeffs$unexplained.mutNum <- round((1 - apply(beta.hat, 1, sum)) * mutSums, digits = 0)
   out$coeffs$unexplained.mutFrac <- out$coeffs$unexplained.mutNum  / mutSums
-
+  
   if (byFreq) {
     for (i in 1:nrow(beta.hat)) {
       beta.hat[i,] <- beta.hat[i,] * mutSums[i]
     }
   }
-
+  
   out$results$count.result <- mutSignatures::as.mutsign.exposures(x = beta.hat, samplesAsCols = FALSE)
   out$results$freq.result <- mutSignatures::as.mutsign.exposures(do.call(rbind, lapply(1:nrow(beta.hat), (function(jjj){
     beta.hat[jjj,] / sum(beta.hat[jjj,] )
   }))), samplesAsCols = FALSE)
-
+  
   out$results$fitted <- res$fitted
   out$results$residuals <- res$residuals
-
+  
   return(out)
 }
 
@@ -3428,23 +3498,23 @@ attachContext <- function(mutData,
 {
   # Init Exec
   exec <- TRUE
-
+  
   # Check if dependencies from BIOC are installed
   BiocX <- c("GenomicRanges", "IRanges", "BSgenome", "GenomeInfoDb")
   all.packs <- rownames(utils::installed.packages())
   if (sum(BiocX %in% all.packs) != length(BiocX)) {
     exec <- FALSE
   }
-
+  
   # Check if BSGenomeDb dependencies from BIOC are installed
   if (!"BSgenome" %in% class(BSGenomeDb)) {
     stop("BSGenomeDb is not a BSgenome-class object")
   }
-
+  
   if (exec) {
-
+    
     attachContext.addON <- mutSignatures::mutSigData$.addON$attachContext.addON
-
+    
     YY <- tryCatch({
       attachContext.addON(mutData = mutData,
                           BSGenomeDb = BSGenomeDb,
@@ -3454,13 +3524,13 @@ attachContext <- function(mutData,
                           nucl_contextN = nucl_contextN,
                           context_colName = context_colName, 
                           skip_seqName_check = skip_seqName_check)},
-
+      
       error = function(e) {
         message("An error has occurred!")
         NULL})
-
+    
     return(YY)
-
+    
   } else {
     message("Sorry, this operation could not be executed!")
     message("In order to run the `attachContext()` function, the following libraries have to be installed from Bioconductor:")
@@ -3474,7 +3544,7 @@ attachContext <- function(mutData,
     bxx <- paste(BiocX[!BiocX %in% all.packs], collapse = ", ")
     message(bxx, appendLF = FALSE)
     message("")
-
+    
     # no return
   }
 }
@@ -3547,9 +3617,9 @@ countMutTypes <- function (mutTable, mutType_colName = "mutType", sample_colName
   if (sum(regexpr(custPatt01, mutTable[, mutType_colName]) >
           0) != length(mutTable[, mutType_colName])){
     message("Non-standard format... MutTypes will be inferred.")
-
+    
     mutType.labels <- sort(unique(mutTable[, mutType_colName]))
-
+    
   } else {
     # fix reverse-complement if needed
     # only works for the standard three-nucletide system
@@ -3565,7 +3635,7 @@ countMutTypes <- function (mutTable, mutType_colName = "mutType", sample_colName
       mutTable[, mutType_colName][idx.to.fix] <- corrected.mutTypes
     }
   }
-
+  
   if (sum(!mutTable[, mutType_colName] %in% mutType.labels) > 0)
     stop("Problem with the mutType... Please check the input")
   if (is.null(sample_colName)) {
@@ -3629,7 +3699,7 @@ countMutTypes <- function (mutTable, mutType_colName = "mutType", sample_colName
 #'
 #' @export
 sortByMutations <- function(x) {
-
+  
   if (class(x) == "mutationSignatures") {
     outClass <- "mutationSignatures"
     x1 <- coerceObj(x = x, to = "data.frame")
@@ -3642,11 +3712,11 @@ sortByMutations <- function(x) {
   } else {
     stop ("Bad input")
   }
-
+  
   # Get rownames == mutation names
   if (is.null(rownames(x1)))
     stop("Bad input")
-
+  
   aRN <- rownames(x1)
   aRN <- sapply(sort(unique(sub("^.*\\[(.*)\\].*$", "\\1", aRN))),
                 function(mt) {
@@ -3654,7 +3724,7 @@ sortByMutations <- function(x) {
                 }, USE.NAMES = FALSE, simplify = FALSE)
   aRN <- do.call(c, aRN)
   ox <- x1[aRN,]
-
+  
   # Format and return
   if (outClass == "data.frame") {
     return(ox)
@@ -3707,7 +3777,7 @@ simplifySignatures <- function(x, asMutationSignatures = TRUE) {
   curMT <- getMutationTypes(x)
   if(sum(!grepl("[ACGT]\\[[ACGT]>[ACGT]\\][ACGT]", curMT)) > 0)
     stop("Mutation Types are not compatible with simplifySignatures")
-
+  
   # Start by defined tri-nucleotides
   mutType.labels <- c("A[C>A]A", "A[C>A]C", "A[C>A]G", "A[C>A]T", "A[C>G]A", "A[C>G]C",
                       "A[C>G]G", "A[C>G]T", "A[C>T]A", "A[C>T]C", "A[C>T]G", "A[C>T]T",
@@ -3725,33 +3795,33 @@ simplifySignatures <- function(x, asMutationSignatures = TRUE) {
                       "T[C>G]G", "T[C>G]T", "T[C>T]A", "T[C>T]C", "T[C>T]G", "T[C>T]T",
                       "T[T>A]A", "T[T>A]C", "T[T>A]G", "T[T>A]T", "T[T>C]A", "T[T>C]C",
                       "T[T>C]G", "T[T>C]T", "T[T>G]A", "T[T>G]C", "T[T>G]G", "T[T>G]T")
-
+  
   # Needs sorting
   input <- coerceObj(x = x, to = "data.frame")
-
+  
   # sigNames <- x@signatureId$ID
   sigNames <- getSignatureIdentifiers(x)
-
+  
   EXPLD <- sapply(mutType.labels, (function(pat){
     tpat <- sub("\\[", "\\\\[",
                 sub("\\]", "\\\\]", pat))
     input[grepl(tpat, rownames(input)),]
   }), simplify = FALSE, USE.NAMES = TRUE)
-
+  
   OUT <- base::as.data.frame(base::t(sapply(EXPLD, function(xi) {
     base::as.numeric(apply(xi, 2, sum, na.rm = TRUE))
   })), row.names = mutType.labels)
   colnames(OUT) <- sigNames
-
+  
   if (asMutationSignatures){
     return(mutSignatures::as.mutation.signatures(OUT))
   }
-
+  
   altOut <- lapply(1:ncol(OUT), (function(j){
     curSGN <- base::as.numeric(OUT[,j])
     iSig <- data.frame(curSGN, row.names = mutType.labels)
     colnames(iSig) <- sigNames[j]
-
+    
     AttDF <- do.call(rbind, sapply(mutType.labels, function(mmd) {
       zi <- EXPLD[[mmd]]
       nuNames <- gsub("[ACGT]\\[[ACGT]>[ACGT]\\][ACGT]", "...", rownames(zi))
@@ -3759,7 +3829,7 @@ simplifySignatures <- function(x, asMutationSignatures = TRUE) {
       names(nuNums) <- nuNames
       nuNums
     }, simplify = FALSE, USE.NAMES = TRUE))
-
+    
     # out
     cbind(iSig, AttDF)
   }))
